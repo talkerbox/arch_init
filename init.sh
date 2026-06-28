@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_PATH="$(readlink -f "$0")"
-
 if [[ $EUID -ne 0 ]]; then
   echo "Error: run this script as root." >&2
   exit 1
@@ -34,40 +32,46 @@ USER_HOME="$(getent passwd "$NEW_USER" | cut -d: -f6)"
 
 install -d -m 700 -o "$NEW_USER" -g "$NEW_USER" "$USER_HOME/.ssh"
 
-su - "$NEW_USER" -c "
-set -euo pipefail
-
-if [[ ! -f ~/.ssh/id_ed25519 ]]; then
-  ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C '$NEW_USER@$(hostname)'
+if [[ ! -f "$USER_HOME/.ssh/id_ed25519" ]]; then
+  su - "$NEW_USER" -c "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C '$NEW_USER@$(hostname)'"
 fi
 
-cat > ~/.xinitrc <<'EOF'
+cat > "$USER_HOME/.xinitrc" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
-xclip -selection clipboard < \"\$HOME/.ssh/id_ed25519.pub\" || true
+xclip -selection clipboard < "$HOME/.ssh/id_ed25519.pub" || true
 firefox https://github.com/settings/keys &
-wait \$!
+wait $!
 touch /tmp/.user_init_done
+
+if [[ -f "$HOME/.ssh/id_ed25519" && -f /tmp/.user_init_done ]]; then
+  mkdir -p "$HOME/repos"
+  if [[ ! -d "$HOME/repos/arch" ]]; then
+    git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
+  fi
+fi
 EOF
 
-chmod +x ~/.xinitrc
-exec startx
-"
+chown "$NEW_USER:$NEW_USER" "$USER_HOME/.xinitrc"
+chmod 700 "$USER_HOME/.xinitrc"
 
-if [[ -f "$USER_HOME/.ssh/id_ed25519" && -f /tmp/.user_init_done ]]; then
-  su - "$NEW_USER" -c "
-    set -euo pipefail
-    mkdir -p ~/repos
-    if [[ ! -d ~/repos/arch ]]; then
-      git clone [email protected]:talkerbox/arch.git ~/repos/arch
-    fi
-  "
+cat <<EOF
 
-  if [[ -d "$USER_HOME/repos/arch/.git" ]]; then
-    rm -f -- "$SCRIPT_PATH"
-  fi
-else
-  echo "Error: SSH key or /tmp/.user_init_done missing." >&2
-  exit 1
-fi
+Prepared successfully.
+
+Next steps:
+1. Log out from root console completely.
+2. Log in as user: $NEW_USER
+3. Run:
+   startx
+
+What will happen:
+- your public SSH key will be copied to clipboard
+- Firefox will open GitHub SSH key settings
+- after Firefox closes, /tmp/.user_init_done will be created
+- then the script will try to clone:
+  git@github.com:talkerbox/arch.git
+  into ~/repos/arch
+
+EOF
