@@ -171,4 +171,19 @@ exit
 reboot
 ```
 
-Installation is done! Now you can login to the installed system under the `root` user and continue further configuration by this [guide](./configuration.md).
+## Configure network
+```bash
+cp /usr/lib/systemd/network/89-ethernet.network.example /etc/systemd/network/89-ethernet.network
+systemctl enable systemd-resolved
+systemctl start sysdtemd-resolved
+systemctl enable systemd-networkd
+systemctl start systemd-networkd
+```
+
+## Get and run initial system script from public repo
+```bash
+cd /tmp/
+wget https://raw.githubusercontent.com/talkerbox/arch_init/refs/heads/main/arch/init.sh
+chmod +x /tmp/init.sh
+./init.sh
+```
