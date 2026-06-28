@@ -183,7 +183,7 @@ systemctl start systemd-networkd
 ## Get and run initial system script from public repo
 ```bash
 cd /tmp/
-wget https://raw.githubusercontent.com/talkerbox/arch_init/refs/heads/main/arch/init.sh
+wget https://raw.githubusercontent.com/talkerbox/sys_init/refs/heads/main/arch/init.sh
 chmod +x /tmp/init.sh
 ./init.sh
 ```

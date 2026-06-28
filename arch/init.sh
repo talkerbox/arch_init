@@ -49,8 +49,8 @@ if [[ -f "$HOME/.ssh/id_ed25519" && -f /tmp/.user_init_done ]]; then
   mkdir -p "$HOME/repos"
   if [[ ! -d "$HOME/repos/arch" ]]; then
     export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new'
-    git clone git@github.com:talkerbox/arch_init.git "$HOME/repos/arch_init"
-    git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
+    git clone git@github.com:talkerbox/sys_init.git "$HOME/repos/sys_init"
+    git clone git@github.com:talkerbox/sys_arch.git "$HOME/repos/sys_arch"
   fi
 fi
 EOF
@@ -73,7 +73,7 @@ What will happen:
 - Firefox will open GitHub SSH key settings
 - after Firefox closes, /tmp/.user_init_done will be created
 - then the script will try to clone:
-  git@github.com:talkerbox/arch.git
-  into ~/repos/arch
+  git@github.com:talkerbox/sys_arch.git
+  into ~/repos/sys_arch
 
 EOF
