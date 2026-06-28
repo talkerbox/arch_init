@@ -36,7 +36,7 @@ if [[ ! -f "$USER_HOME/.ssh/id_ed25519" ]]; then
   su - "$NEW_USER" -c "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C '$NEW_USER@$(hostname)'"
 fi
 
-cat > "$USER_HOME/.xinitrc" <<'EOF'
+cat >"$USER_HOME/.xinitrc" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -48,8 +48,9 @@ touch /tmp/.user_init_done
 if [[ -f "$HOME/.ssh/id_ed25519" && -f /tmp/.user_init_done ]]; then
   mkdir -p "$HOME/repos"
   if [[ ! -d "$HOME/repos/arch" ]]; then
-    GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' \
-      git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
+    export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new'
+    git clone git@github.com:talkerbox/arch_init.git "$HOME/repos/arch_init"
+    git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
   fi
 fi
 EOF
