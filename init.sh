@@ -48,7 +48,8 @@ touch /tmp/.user_init_done
 if [[ -f "$HOME/.ssh/id_ed25519" && -f /tmp/.user_init_done ]]; then
   mkdir -p "$HOME/repos"
   if [[ ! -d "$HOME/repos/arch" ]]; then
-    git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
+    GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' \
+      git clone git@github.com:talkerbox/arch.git "$HOME/repos/arch"
   fi
 fi
 EOF
